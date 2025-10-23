@@ -1,7 +1,9 @@
 import asyncio
 import json
 import secrets
-
+import os
+import signal
+import websockets
 from websockets.asyncio.server import broadcast, serve
 
 from othello import BLACK, WHITE, Game
@@ -219,10 +221,14 @@ async def handler(websocket):
         # First player starts a new game.
         await start(websocket)
 
-
 async def main():
-    async with serve(handler, "0.0.0.0", 8001) as server:
-        await server.serve_forever()
+    # Set the stop condition when receiving SIGTERM.
+    loop = asyncio.get_running_loop()
+    stop = loop.create_future()
+
+    port = int(os.environ.get("PORT", "8001"))
+    async with websockets.serve(handler, host="", port=port):
+        await stop
 
 
 if __name__ == "__main__":

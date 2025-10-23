@@ -85,6 +85,18 @@ function sendMoves(board, websocket) {
     });
 }
 
+import { createBoard, playMove } from "./connect4.js";
+
+function getWebSocketServer() {
+  if (window.location.host === "python-websockets.github.io") {
+    return "wss://othello-ai-0a8591bf1487.herokuapp.com/";
+  } else if (window.location.host === "localhost:8000") {
+    return "ws://localhost:8001/";
+  } else {
+    throw new Error(`Unsupported host: ${window.location.host}`);
+  }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     // Initialize the UI.
     const board = document.querySelector(".board");
@@ -100,7 +112,7 @@ window.addEventListener("DOMContentLoaded", () => {
     ];
     renderBoard(board, boardState);
     // Open the WebSocket connection and register event handlers.
-    const websocket = new WebSocket("ws://localhost:8001/");
+    const websocket = new WebSocket(getWebSocketServer());
     initGame(websocket);
     receiveMessages(board, websocket);
     sendMoves(board, websocket);
